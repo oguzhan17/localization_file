@@ -5,16 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
 class AddDataScreen extends StatelessWidget {
-  final Map<String, String> trMap;
-  final Map<String, String> enMap;
-
   const AddDataScreen({
     Key? key,
-    required this.trMap,
-    required this.enMap,
   }) : super(
-    key: key,
-  );
+          key: key,
+        );
 
   Future<String> get directoryPath async {
     Directory directory = await getApplicationDocumentsDirectory();
@@ -64,12 +59,15 @@ class AddDataScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Map<String, String> trMap = {};
+    Map<String, String> enMap = {};
+
     final TextEditingController _textEditingControllerKey =
-    TextEditingController();
+        TextEditingController();
     final TextEditingController _textEditingControllerEN =
-    TextEditingController();
+        TextEditingController();
     final TextEditingController _textEditingControllerTR =
-    TextEditingController();
+        TextEditingController();
 
     return Scaffold(
       appBar: AppBar(
@@ -129,11 +127,21 @@ class AddDataScreen extends StatelessWidget {
                     _textEditingControllerEN.text != '' &&
                     _textEditingControllerTR.text != '') {
                   trMap.putIfAbsent(_textEditingControllerKey.text,
-                          () => _textEditingControllerTR.text);
+                      () => _textEditingControllerTR.text);
                   enMap.putIfAbsent(_textEditingControllerKey.text,
-                          () => _textEditingControllerEN.text);
-                  writeToTrFile("\"" + trMap.keys.last + "\": " + "\"" + trMap.values.last + "\"");
-                  writeToEnFile("\"" + enMap.keys.last + "\": " + "\"" + enMap.values.last + "\"");
+                      () => _textEditingControllerEN.text);
+                  writeToTrFile("\"" +
+                      trMap.keys.last +
+                      "\": " +
+                      "\"" +
+                      trMap.values.last +
+                      "\"");
+                  writeToEnFile("\"" +
+                      enMap.keys.last +
+                      "\": " +
+                      "\"" +
+                      enMap.values.last +
+                      "\"");
                 }
               },
               style: ElevatedButton.styleFrom(primary: Colors.blue),

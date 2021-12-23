@@ -1,7 +1,7 @@
-import 'package:equatable/equatable.dart';
-import 'localization_states.dart';
 
-class LocalizationListEvents extends Equatable {
+part of 'localization_bloc.dart';
+
+abstract class LocalizationListEvents extends Equatable {
   const LocalizationListEvents();
 
   @override

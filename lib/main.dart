@@ -4,6 +4,7 @@ import 'package:localization_desktop/localization_list_bloc/localization_bloc.da
 import 'package:localization_desktop/localization_list_bloc/localization_states.dart';
 import 'package:localization_desktop/screens/display_screen/display_screen.dart';
 
+
 void main() {
   runApp(const MyApp());
 }

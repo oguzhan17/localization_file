@@ -1,8 +1,10 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:localization_desktop/localization_list_bloc/localization_bloc.dart';
+import 'package:localization_desktop/localization_list_bloc/localization_states.dart';
 
+import '../../repository/load_keys_repository.dart';
 import '../add_data_screen/add_data_screen.dart';
 import 'localizationFileItem.dart';
 
@@ -16,28 +18,11 @@ class DisplayScreen extends StatefulWidget {
 }
 
 class _DisplayScreenState extends State<DisplayScreen> {
-  Map<String, String> tr = {};
-  Map<String, String> en = {};
-  List list = [];
-  List<Map> listMap = [];
 
-  @override
+@override
   void initState() {
-    loadKeys();
-  }
-
-  Future loadKeys() async {
-    String data = await rootBundle.loadString('lib/l10n/app_tr.arb');
-    Map<String, dynamic> dynamicMap = json.decode(data);
-    tr = dynamicMap.map((key, value) => MapEntry(key, value.toString()));
-
-    data = await rootBundle.loadString('lib/l10n/app_en.arb');
-    dynamicMap = json.decode(data);
-    en = dynamicMap.map((key, value) => MapEntry(key, value.toString()));
-    list = tr.keys.toList();
-    listMap = [en, tr];
-    setState(() {});
-    return Future.value();
+  LoadKeysRepository().loadKeys();
+    super.initState();
   }
 
   @override
@@ -51,40 +36,80 @@ class _DisplayScreenState extends State<DisplayScreen> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AddDataScreen(trMap : tr,enMap: en,)),
+            MaterialPageRoute(
+                builder: (context) => const AddDataScreen(
+
+                )),
           );
         },
         child: const Icon(Icons.add),
       ),
-      body: SingleChildScrollView(
-        child: DataTable(columnSpacing: 10, columns: const <DataColumn>[
-          DataColumn(
-            label: Text(
-              'Key',
-              style: TextStyle(fontStyle: FontStyle.italic),
-            ),
+      body: BlocBuilder<LocalizationListBloc, LocalizationListStates>(
+          builder: (BuildContext context, LocalizationListStates state) {
+
+            if (state is LocalizationListLoadingState) {
+              debugPrint('Loading');
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (state is LocalizationListLoadedState) {
+              debugPrint('Loaded');
+             debugPrint(LoadKeysRepository().en.keys.last);
+              return const SingleChildList();
+            } else if (state is LocalizationListErrorState) {
+              debugPrint('Error');
+              String error = state.errorMessage;
+              return Center(child: Text(error));
+            } else {
+              debugPrint('Else');
+        //      debugPrint(LoadKeysRepository().en.keys.last);
+              return const Center(
+                  child: CircularProgressIndicator(
+                   backgroundColor: Colors.lightBlueAccent,
+                  ));
+            }
+          }),
+    );
+  }
+}
+
+class SingleChildList extends StatelessWidget {
+  const SingleChildList({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: DataTable(columnSpacing: 10, columns: const <DataColumn>[
+        DataColumn(
+          label: Text(
+            'Key',
+            style: TextStyle(fontStyle: FontStyle.italic),
           ),
-          DataColumn(
-            label: Text(
-              'EN',
-              style: TextStyle(fontStyle: FontStyle.italic),
-            ),
+        ),
+        DataColumn(
+          label: Text(
+            'EN',
+            style: TextStyle(fontStyle: FontStyle.italic),
           ),
-          DataColumn(
-            label: Text(
-              'TR',
-              style: TextStyle(fontStyle: FontStyle.italic),
-            ),
+        ),
+        DataColumn(
+          label: Text(
+            'TR',
+            style: TextStyle(fontStyle: FontStyle.italic),
           ),
-        ], rows: [
-          ...list.map((e) {
-            return localizationFileItem(
-              context: context,
-              listMap: listMap,
-              index: list.indexOf(e),
-            );
-          }).toList(),
-        ]),
+        ),
+      ],
+          rows: [
+        ...LoadKeysRepository().list.map((e) {
+          return localizationFileItem(
+            context: context,
+            listMap: LoadKeysRepository().listMap,
+            index: LoadKeysRepository().list.indexOf(e),
+          );
+        }).toList(),
+      ]
       ),
     );
   }
